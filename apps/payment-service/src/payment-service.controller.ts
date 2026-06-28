@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
-import { PaymentServiceService } from './payment-service.service';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreatePaymentDto } from 'dapr-learning/common';
 
-@Controller()
+@Controller('payments')
 export class PaymentServiceController {
-  constructor(private readonly paymentServiceService: PaymentServiceService) {}
+  @Post()
+  createPayment(@Body() payload: CreatePaymentDto) {
+    console.log('Payment received:', payload);
 
-  @Get()
-  getHello(): string {
-    return this.paymentServiceService.getHello();
+    return {
+      success: true,
+      paymentId: crypto.randomUUID(),
+      orderId: payload.orderId,
+    };
   }
 }

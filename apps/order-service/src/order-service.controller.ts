@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreateOrderDto } from 'dapr-learning/common';
 import { OrderServiceService } from './order-service.service';
 
-@Controller()
+@Controller('orders')
 export class OrderServiceController {
-  constructor(private readonly orderServiceService: OrderServiceService) {}
+  constructor(private readonly orderService: OrderServiceService) {}
 
-  @Get()
-  getHello(): string {
-    return this.orderServiceService.getHello();
+  @Post()
+  create(@Body() payload: CreateOrderDto) {
+    return this.orderService.createOrder(payload);
   }
 }
