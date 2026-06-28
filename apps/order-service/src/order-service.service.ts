@@ -10,7 +10,7 @@ export class OrderServiceService {
   async createOrder(payload: CreateOrderDto) {
     const response = await firstValueFrom(
       this.httpService.post(
-        'http://localhost:3001/payments',
+        'http://localhost:3500/v1.0/invoke/payment-service/method/payments',
         {
           orderId: payload.orderId,
           amount: payload.amount,
