@@ -9,8 +9,8 @@ Move from synchronous communication to event-driven communication.
 ## Previous Architecture
 
 Order Service
-      |
-      v
+|
+v
 Payment Service
 
 Characteristics:
@@ -24,23 +24,22 @@ Characteristics:
 ## Target Architecture
 
 Order Service
-      |
-      v
+|
+v
 Dapr Pub/Sub
-      |
-      v
+|
+v
 RabbitMQ
-      |
-      +--> Payment Service
-      +--> Inventory Service
-      +--> Notification Service
+|
++--> Payment Service
++--> Inventory Service
++--> Notification Service
 
 Characteristics:
 
 - Event-driven
 - Loosely coupled
 - Multiple subscribers
-
 
 ## Setup Steps
 
@@ -94,3 +93,51 @@ All applications must be started using:
 dapr run
 
 so Dapr can discover Pub/Sub components.
+
+## Verify Dapr Component Registration
+
+After starting applications with Dapr:
+
+```bash
+curl http://localhost:3501/v1.0/metadata
+```
+
+Expected response contains:
+
+```json
+{
+  "components": [
+    {
+      "name": "pubsub",
+      "type": "pubsub.rabbitmq"
+    }
+  ]
+}
+```
+
+Meaning:
+
+- Dapr loaded the component definition
+- RabbitMQ component is available
+- Applications can publish and subscribe using the component name
+
+In this project:
+
+```text
+Component Name: pubsub
+Component Type: pubsub.rabbitmq
+```
+
+Applications reference only the component name:
+
+```text
+pubsub
+```
+
+and do not interact directly with RabbitMQ.
+
+This allows the underlying messaging system to be replaced later without changing application code.
+
+```
+
+```
