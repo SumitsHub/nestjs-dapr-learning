@@ -13,10 +13,6 @@ export class DaprService {
   }
 
   async publishOrderCreated(data: any) {
-    await this.client.pubsub.publish(
-      'pubsub',
-      'order-created',
-      data,
-    );
+    await this.client.pubsub.publish('pubsub', 'order-created', data);
   }
 }
