@@ -1,4 +1,5 @@
 ## Dapr's major building blocks are:
+
 Service Invocation
 Pub/Sub
 State Management
