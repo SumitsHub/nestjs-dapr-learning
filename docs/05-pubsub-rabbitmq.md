@@ -497,3 +497,13 @@ Local Dapr Sidecar
 Dapr communicates with RabbitMQ.
 
 This abstraction allows RabbitMQ to be replaced later with Kafka, Azure Service Bus, Redis Streams, or another supported broker with minimal application code changes.
+
+## Understanding RabbitMQ UI
+
+Overview - Health and metrics
+Connections - Dapr to RabbitMQ connections
+Exchanges - Message routing layer
+Queues - Stored messages awaiting consumption
+Ready -Waiting messages
+Unacked - Delivered but not acknowledged
+Consumers - Active subscribers
