@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { CreateOrderDto } from 'dapr-learning/common';
 import { DaprService } from './dapr.service';
+import { StateService } from './state.service';
 
 @Injectable()
 export class OrderServiceService {
   constructor(
     private readonly httpService: HttpService,
     private readonly daprService: DaprService,
+    private readonly stateService: StateService,
   ) {}
 
   async createOrder(payload: CreateOrderDto) {
@@ -22,6 +24,14 @@ export class OrderServiceService {
     //   ),
     // );
 
+    // Save the order to state store (Dapr state management)
+    await this.stateService.saveOrder({
+      orderId: payload.orderId,
+      amount: payload.amount,
+      status: 'CREATED',
+      createdAt: new Date().toISOString(),
+    });
+
     await this.daprService.publishOrderCreated({
       orderId: payload.orderId,
       amount: payload.amount,
@@ -30,5 +40,9 @@ export class OrderServiceService {
       orderCreated: true,
       eventPublished: true,
     };
+  }
+
+  async getOrder(orderId: string) {
+    return this.stateService.getOrder(orderId);
   }
 }
