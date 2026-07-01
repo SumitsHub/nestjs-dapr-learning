@@ -5,10 +5,11 @@ import { OrderServiceController } from './order-service.controller';
 import { OrderServiceService } from './order-service.service';
 import { DaprService } from './dapr.service';
 import { StateService } from './state.service';
+import { SecretService } from './secret.service';
 
 @Module({
   imports: [HttpModule],
   controllers: [OrderServiceController],
-  providers: [OrderServiceService, DaprService, StateService],
+  providers: [OrderServiceService, DaprService, StateService, SecretService],
 })
 export class OrderServiceModule {}
