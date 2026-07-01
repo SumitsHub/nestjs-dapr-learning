@@ -1,0 +1,17 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: payment-resiliency
+
+spec:
+  policies:
+    retries:
+      paymentRetry:
+        policy: constant
+        duration: 2s
+        maxRetries: 3
+
+  targets:
+    apps:
+      payment-service:
+        retry: paymentRetry

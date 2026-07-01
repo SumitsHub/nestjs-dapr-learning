@@ -2,12 +2,14 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateOrderDto } from 'dapr-learning/common';
 import { OrderServiceService } from './order-service.service';
 import { SecretService } from './secret.service';
+import { DaprService } from './dapr.service';
 
 @Controller('orders')
 export class OrderServiceController {
   constructor(
     private readonly orderService: OrderServiceService,
     private readonly secretService: SecretService,
+    private readonly daprService: DaprService,
   ) {}
 
   @Post()
@@ -23,5 +25,16 @@ export class OrderServiceController {
   @Get('secret/:name')
   async getSecret(@Param('name') name: string) {
     return this.secretService.getSecret(name);
+  }
+
+  // This endpoint is for testing the invocation of the payment service with resiliency (retries) via Dapr.
+  @Post('pay-now')
+  async payNow(@Body() body: any) {
+    const response = await this.daprService.invokePayment(body);
+
+    return {
+      success: true,
+      payment: response,
+    };
   }
 }
