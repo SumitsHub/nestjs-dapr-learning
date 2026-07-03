@@ -1,0 +1,16 @@
+### ==========================================
+### Direct Payment Endpoint
+### ==========================================
+
+@host = http://localhost
+@paymentService = {{host}}:3001
+@paymentDapr = {{host}}:3501
+@contentType = application/json
+
+POST {{paymentService}}/payments
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-777",
+    "amount": 999
+}

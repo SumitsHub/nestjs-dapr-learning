@@ -1,0 +1,87 @@
+### ==========================================
+### Order Service Metadata
+### ==========================================
+
+@host = http://localhost
+@orderService = {{host}}:3000
+@paymentService = {{host}}:3001
+@orderDapr = {{host}}:3500
+@paymentDapr = {{host}}:3501
+
+GET {{orderDapr}}/v1.0/metadata
+
+###
+
+### Payment Service Metadata
+
+GET {{paymentDapr}}/v1.0/metadata
+
+###
+
+### ==========================================
+### Get MongoDB Credentials
+### ==========================================
+
+GET {{orderDapr}}/v1.0/secrets/secretstore/mongodb
+
+###
+
+### Payment Provider Secret
+
+GET {{orderDapr}}/v1.0/secrets/secretstore/payment-provider
+
+###
+
+### ==========================================
+### Publish Event Manually
+### ==========================================
+
+POST {{orderDapr}}/v1.0/publish/pubsub/order-created
+Content-Type: application/json
+
+{
+    "orderId": "ORD-MANUAL",
+    "amount": 1000,
+    "status": "CREATED",
+    "createdAt": "2026-07-03T10:00:00.000Z"
+}
+
+###
+
+### ==========================================
+### Get Order State
+### ==========================================
+
+GET {{orderDapr}}/v1.0/state/statestore/ORD-100
+
+###
+
+### Get Another Order State
+
+GET {{orderDapr}}/v1.0/state/statestore/ORD-101
+
+###
+
+### ==========================================
+### Save State Manually
+### ==========================================
+
+POST {{orderDapr}}/v1.0/state/statestore
+Content-Type: application/json
+
+[
+    {
+        "key": "manual-order",
+        "value": {
+            "orderId": "manual-order",
+            "amount": 123,
+            "status": "CREATED"
+        }
+    }
+]
+
+###
+
+### Read Manual State
+
+GET {{orderDapr}}/v1.0/state/statestore/manual-order

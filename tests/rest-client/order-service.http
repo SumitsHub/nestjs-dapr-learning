@@ -1,0 +1,54 @@
+### ==========================================
+### Create Order
+### ==========================================
+
+# REST Client variables
+@host = http://localhost
+@orderService = {{host}}:3000
+@orderDapr = {{host}}:3500
+@contentType = application/json
+
+POST {{orderService}}/orders
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-100",
+    "amount": 100
+}
+
+###
+
+### Create Another Order
+
+POST {{orderService}}/orders
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-101",
+    "amount": 250
+}
+
+###
+
+### Get Order State
+
+GET {{orderService}}/orders/ORD-100
+
+###
+
+### Get Another Order State
+
+GET {{orderService}}/orders/ORD-101
+
+###
+
+### Temporary Endpoint
+### Used for testing Dapr Service Invocation
+
+POST {{orderService}}/orders/pay-now
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-999",
+    "amount": 500
+}
