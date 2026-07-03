@@ -1,14 +1,16 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { OrderCreatedEvent } from 'dapr-learning/common';
+import { OrderCreatedEvent, TOPICS } from 'dapr-learning/common';
+import { PaymentServiceService } from './payment-service.service';
 
 @Controller()
 export class SubscriptionsController {
+  constructor(private readonly paymentService: PaymentServiceService) {}
   @Get('/dapr/subscribe')
   subscribe() {
     return [
       {
         pubsubname: 'pubsub',
-        topic: 'order-created',
+        topic: TOPICS.ORDER_CREATED,
         route: 'orders/order-created',
       },
     ];
@@ -18,9 +20,12 @@ export class SubscriptionsController {
   async handleOrderCreated(@Body() event: OrderCreatedEvent) {
     console.log('Received OrderCreated event');
     console.log(event);
+    const payment = await this.paymentService.processPayment(event);
 
-    return {
-      success: true,
-    };
+    // save payment state
+
+    // publish PaymentCompleted
+
+    return { success: true };
   }
 }
