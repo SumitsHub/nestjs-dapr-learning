@@ -1,6 +1,8 @@
+import { OrderStatus } from '../enums';
+
 export class OrderCreatedEvent {
   orderId: string;
   amount: number;
-  status: string;
+  status: OrderStatus;
   createdAt: Date;
 }

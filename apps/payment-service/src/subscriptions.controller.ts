@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { OrderCreatedEvent } from 'dapr-learning/common';
 
 @Controller()
 export class SubscriptionsController {
@@ -14,7 +15,7 @@ export class SubscriptionsController {
   }
 
   @Post('/orders/order-created')
-  async handleOrderCreated(@Body() event: any) {
+  async handleOrderCreated(@Body() event: OrderCreatedEvent) {
     console.log('Received OrderCreated event');
     console.log(event);
 

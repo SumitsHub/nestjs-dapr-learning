@@ -29,7 +29,7 @@ export class OrderServiceController {
 
   // This endpoint is for testing the invocation of the payment service with resiliency (retries) via Dapr.
   @Post('pay-now')
-  async payNow(@Body() body: any) {
+  async payNow(@Body() body: CreateOrderDto) {
     console.log('Invoking payment service...');
     const response = await this.daprService.invokePayment(body);
     console.log('Payment response received');

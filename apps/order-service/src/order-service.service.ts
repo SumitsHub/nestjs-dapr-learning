@@ -1,7 +1,11 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { CreateOrderDto } from 'dapr-learning/common';
+import {
+  CreateOrderDto,
+  OrderCreatedEvent,
+  OrderStatus,
+} from 'dapr-learning/common';
 import { DaprService } from './dapr.service';
 import { StateService } from './state.service';
 
@@ -28,14 +32,18 @@ export class OrderServiceService {
     await this.stateService.saveOrder({
       orderId: payload.orderId,
       amount: payload.amount,
-      status: 'CREATED',
+      status: OrderStatus.CREATED,
       createdAt: new Date().toISOString(),
     });
 
-    await this.daprService.publishOrderCreated({
+    const event: OrderCreatedEvent = {
       orderId: payload.orderId,
       amount: payload.amount,
-    });
+      status: OrderStatus.CREATED,
+      createdAt: new Date(),
+    };
+
+    await this.daprService.publishOrderCreated(event);
     return {
       orderCreated: true,
       eventPublished: true,

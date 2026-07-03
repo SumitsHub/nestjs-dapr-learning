@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DaprClient, HttpMethod } from '@dapr/dapr';
+import { CreateOrderDto, OrderCreatedEvent } from 'dapr-learning/common';
 
 @Injectable()
 export class DaprService {
@@ -12,11 +13,11 @@ export class DaprService {
     });
   }
 
-  async publishOrderCreated(data: any) {
+  async publishOrderCreated(data: OrderCreatedEvent) {
     await this.client.pubsub.publish('pubsub', 'order-created', data);
   }
 
-  async invokePayment(data: any) {
+  async invokePayment(data: CreateOrderDto) {
     return this.client.invoker.invoke(
       'payment-service',
       'payments',
