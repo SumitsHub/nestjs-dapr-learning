@@ -13,7 +13,7 @@ export class StateService {
   }
 
   async saveOrder(order: any) {
-    await this.client.state.save('statestore', [
+    await this.client.state.save('orderstore', [
       {
         key: order.orderId,
         value: order,
@@ -22,6 +22,6 @@ export class StateService {
   }
 
   async getOrder(orderId: string) {
-    return this.client.state.get('statestore', orderId);
+    return this.client.state.get('orderstore', orderId);
   }
 }

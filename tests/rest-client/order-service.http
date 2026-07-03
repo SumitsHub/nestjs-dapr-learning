@@ -12,7 +12,7 @@ POST {{orderService}}/orders
 Content-Type: {{contentType}}
 
 {
-    "orderId": "ORD-100",
+    "orderId": "ORD-001",
     "amount": 100
 }
 
@@ -32,7 +32,7 @@ Content-Type: {{contentType}}
 
 ### Get Order State
 
-GET {{orderService}}/orders/ORD-100
+GET {{orderService}}/orders/ORD-001
 
 ###
 
