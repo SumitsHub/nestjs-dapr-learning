@@ -76,6 +76,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^@app/dapr-core(|/.*)$": "<rootDir>/libs/dapr-core/src/$1",
       "^dapr-learning/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
   }

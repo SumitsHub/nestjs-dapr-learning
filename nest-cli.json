@@ -19,6 +19,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "dapr-core": {
+      "type": "library",
+      "root": "libs/dapr-core",
+      "entryFile": "index",
+      "sourceRoot": "libs/dapr-core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/dapr-core/tsconfig.lib.json"
+      }
+    },
     "inventory-service": {
       "type": "application",
       "root": "apps/inventory-service",

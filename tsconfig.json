@@ -22,6 +22,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/dapr-core": [
+        "libs/dapr-core/src"
+      ],
+      "@app/dapr-core/*": [
+        "libs/dapr-core/src/*"
+      ],
       "dapr-learning/common": [
         "libs/common/src"
       ],
