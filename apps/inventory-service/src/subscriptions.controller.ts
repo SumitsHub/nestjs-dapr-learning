@@ -28,7 +28,9 @@ export class SubscriptionsController {
     @Body()
     event: CloudEvent<PaymentCompletedEvent>,
   ) {
-    console.log('Received PaymentCompleted event', event);
+    console.log('Received PaymentCompleted');
+    console.log(event.data);
+
     const reservation = await this.inventoryService.reserveInventory(
       event.data,
     );
