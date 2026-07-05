@@ -60,6 +60,17 @@ dapr run \
   -- yarn nest start inventory-service
 ```
 
+Notification Service
+
+```bash
+dapr run \
+  --app-id notification-service \
+  --app-port 3003 \
+  --dapr-http-port 3503 \
+  --resources-path ./dapr/components \
+  -- yarn nest start notification-service
+```
+
 Communication:
 
 ```text
