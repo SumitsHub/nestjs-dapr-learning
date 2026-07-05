@@ -1,3 +1,4 @@
+import { InventoryItemDto } from '../dtos';
 import { PaymentStatus } from '../enums';
 
 export class PaymentCompletedEvent {
@@ -6,4 +7,5 @@ export class PaymentCompletedEvent {
   amount: number;
   status: PaymentStatus;
   processedAt: Date;
+  items: InventoryItemDto[];
 }
