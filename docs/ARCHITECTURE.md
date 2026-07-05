@@ -1,214 +1,152 @@
-# System Architecture
+# Architecture Overview
 
-## Project Goal
-
-This repository demonstrates how to build a production-oriented microservices application using NestJS and Dapr.
-
-The objective is not only to learn Dapr APIs, but also to understand how distributed systems are designed, implemented, and evolved using modern architectural patterns.
-
----
-
-# Technology Stack
-
-| Layer               | Technology        |
-| ------------------- | ----------------- |
-| Language            | TypeScript        |
-| Framework           | NestJS 11         |
-| Runtime             | Node.js           |
-| Package Manager     | Yarn              |
-| Architecture        | Monorepo          |
-| Distributed Runtime | Dapr              |
-| Messaging           | RabbitMQ          |
-| Database            | MongoDB           |
-| State Management    | Dapr State Store  |
-| Secret Management   | Dapr Secret Store |
-
----
-
-# Current Architecture
+## Current Architecture
 
 ```text
-                     Client
-                        |
-                        |
-                Order Service
-                        |
-      +-----------------+----------------+
-      |                                  |
-      |                                  |
-Service Invocation                 Pub/Sub
-(Synchronous)                  (Asynchronous)
-      |                                  |
-      |                                  |
-Payment Service <------ RabbitMQ ---------+
-      |
-      |
-MongoDB (State Store)
+                  Client
+                     │
+                     ▼
+              Order Service
+                     │
+      ┌──────────────┴──────────────┐
+      │                             │
+ Save Order State             Publish OrderCreated
+      │                             │
+      ▼                             ▼
+ MongoDB (orders)             RabbitMQ (Pub/Sub)
+                                    │
+                                    ▼
+                            Payment Service
+                                    │
+                 ┌──────────────────┴──────────────────┐
+                 │                                     │
+          Save Payment State              Publish PaymentCompleted
+                 │                                     │
+                 ▼                                     ▼
+          MongoDB (payments)              RabbitMQ (Pub/Sub)
 ```
-
-Every application runs with its own Dapr sidecar.
-
-```text
-+---------------------+
-| Order Service       |
-+---------------------+
-| Dapr Sidecar        |
-+---------------------+
-
-+---------------------+
-| Payment Service     |
-+---------------------+
-| Dapr Sidecar        |
-+---------------------+
-```
-
-The application communicates with the local Dapr sidecar instead of directly communicating with infrastructure such as RabbitMQ or MongoDB.
 
 ---
 
-# Current Services
+## Services
 
-## Order Service
+### Order Service
 
-Responsibilities:
+Responsibilities
 
-- Accept client requests
-- Publish business events
-- Invoke other services
-- Persist order state
-- Retrieve secrets through Dapr
+- Create Orders
+- Persist Orders
+- Publish `OrderCreated`
+- Invoke other services when needed
 
-Dapr Building Blocks:
+Owns
 
-- Service Invocation
-- Pub/Sub
-- State Store
-- Secret Store
+- `orders` MongoDB collection
 
 ---
 
-## Payment Service
+### Payment Service
 
-Responsibilities:
+Responsibilities
 
-- Consume OrderCreated events
-- Process payments (currently simulated)
-- Participate in synchronous service invocation
+- Subscribe to `OrderCreated`
+- Process Payment
+- Persist Payment
+- Publish `PaymentCompleted`
 
-Dapr Building Blocks:
+Owns
 
-- Pub/Sub Subscriber
-- State Store (available)
-- Secret Store (available)
+- `payments` MongoDB collection
 
 ---
 
-# Shared Library
+## Shared Libraries
 
-Shared contracts are maintained inside:
+### libs/common
 
-```text
-libs/common
-```
+Contains shared domain contracts.
 
-Current shared assets include:
+Examples
 
 - DTOs
 - Events
 - Enums
-- Interfaces
 - Constants
+- Shared Interfaces
 
-This provides a single source of truth for service-to-service communication.
-
----
-
-# Communication Patterns
-
-## Service Invocation
-
-Used when an immediate response is required.
-
-Examples:
-
-- Payment authorization
-- Inventory availability
-- Validation requests
-
-Characteristics:
-
-- Synchronous
-- Request/Response
-- Tighter coupling
-- Supports retries and timeouts
+No infrastructure code belongs here.
 
 ---
 
-## Pub/Sub
+### libs/dapr-core
 
-Used for business events.
+Contains shared Dapr infrastructure.
 
-Examples:
+Current services
 
-- Order Created
-- Payment Completed
-- Inventory Reserved
+- `PubSubService`
+- `InvocationService`
 
-Characteristics:
+Future additions
 
-- Asynchronous
-- Loosely coupled
-- Event-driven
-- Publisher is unaware of subscribers
+- Workflow
+- Actors
+- Locks
 
 ---
 
-# Infrastructure
-
-## RabbitMQ
-
-Purpose:
-
-- Message broker for asynchronous communication.
-
-Current Topic:
+## Event Flow
 
 ```text
-order-created
+Client
+   │
+POST /orders
+   │
+   ▼
+Order Service
+   │
+   ├── Save Order
+   └── Publish OrderCreated
+                │
+                ▼
+RabbitMQ
+                │
+                ▼
+Payment Service
+                │
+                ├── Process Payment
+                ├── Save Payment
+                └── Publish PaymentCompleted
 ```
 
 ---
 
-## MongoDB
+## Data Ownership
 
-Purpose:
+| Service | Collection |
+| ------- | ---------- |
+| Order   | orders     |
+| Payment | payments   |
 
-- State Store backend
+Every microservice owns its own data.
 
-Current collection:
-
-```text
-state
-```
-
-Managed through Dapr rather than direct MongoDB access.
+Services never write directly into another service's collection.
 
 ---
 
-## Local Secret Store
+## Dapr Building Blocks Used
 
-Purpose:
+✅ Service Invocation
 
-Store development secrets outside application code.
+✅ Pub/Sub
 
-Current secrets:
+✅ State Store
 
-- MongoDB credentials
-- Payment provider API key
+✅ Secret Store
 
 ---
 
-# Folder Structure
+## Current Folder Structure
 
 ```text
 apps/
@@ -217,49 +155,5 @@ apps/
 
 libs/
     common/
-        dtos/
-        events/
-        enums/
-        interfaces/
-        constants/
-
-dapr/
-    components/
-    secrets/
-    resiliency/
-
-docs/
+    dapr-core/
 ```
-
----
-
-# Current Dapr Building Blocks
-
-| Building Block     | Status         |
-| ------------------ | -------------- |
-| Service Invocation | ✅             |
-| Pub/Sub            | ✅             |
-| State Store        | ✅             |
-| Secret Store       | ✅             |
-| Resiliency         | 🚧 In Progress |
-| Configuration      | Planned        |
-| Workflow           | Planned        |
-| Actors             | Planned        |
-
----
-
-# Future Roadmap
-
-The project will gradually evolve by introducing:
-
-- Inventory Service
-- Notification Service
-- Resiliency Policies
-- Distributed Workflows
-- Multi-Tenant Architecture
-- OpenTelemetry
-- Distributed Tracing
-- Kubernetes Deployment
-- Production Readiness Improvements
-
-The goal is to evolve the system incrementally while keeping it deployable and production-oriented throughout the learning journey.

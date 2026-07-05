@@ -201,6 +201,176 @@ Events should be immutable and describe historical facts.
 
 ---
 
+# Event-Driven Architecture
+
+## Why publish events?
+
+Publishing events removes direct coupling between services.
+
+Instead of:
+
+Order → Payment
+
+we have:
+
+Order → Event Bus → Payment
+
+Benefits
+
+- Loose coupling
+- Better scalability
+- Easier extensibility
+- Independent deployments
+
+---
+
+# CloudEvents
+
+Dapr wraps every published event inside a CloudEvent envelope.
+
+Example
+
+```json
+{
+  "id": "...",
+  "source": "order-service",
+  "topic": "order-created",
+  "data": {
+    "orderId": "ORD-001"
+  }
+}
+```
+
+Subscriber should receive
+
+```ts
+CloudEvent<OrderCreatedEvent>;
+```
+
+Business services should work with
+
+```ts
+OrderCreatedEvent;
+```
+
+not the CloudEvent wrapper.
+
+---
+
+# DTO vs Event
+
+DTO
+
+Represents internal application data.
+
+Example
+
+PaymentDto
+
+Event
+
+Represents something that happened.
+
+Example
+
+PaymentCompletedEvent
+
+Never expose internal persistence models directly as integration events.
+
+---
+
+# Shared Libraries
+
+libs/common
+
+Contains
+
+- DTOs
+- Events
+- Enums
+- Constants
+
+No infrastructure.
+
+libs/dapr-core
+
+Contains reusable Dapr infrastructure.
+
+Examples
+
+- PubSubService
+- InvocationService
+
+---
+
+# Microservice Data Ownership
+
+Every microservice owns its own database or collection.
+
+Avoid
+
+Shared database tables between services.
+
+Prefer
+
+Order → orders collection
+
+Payment → payments collection
+
+---
+
+# Why use Dapr?
+
+Without Dapr
+
+- RabbitMQ SDK
+- MongoDB SDK
+- Secret SDK
+- Retry logic
+- Service Discovery
+
+With Dapr
+
+Services call a consistent API.
+
+Infrastructure becomes pluggable.
+
+Application code remains simple.
+
+---
+
+# Important Interview Questions
+
+Q. Why CloudEvents?
+
+Standard event format across brokers and platforms.
+
+---
+
+Q. Why separate DTOs and Events?
+
+Events are public contracts.
+
+DTOs are internal models.
+
+---
+
+Q. Why separate collections?
+
+Clear ownership.
+
+Independent evolution.
+
+Avoid cross-service coupling.
+
+---
+
+Q. Why shared infrastructure library?
+
+Avoid duplicated infrastructure code.
+
+Keep business services focused on domain logic.
+
 # Topics Remaining
 
 - Retry

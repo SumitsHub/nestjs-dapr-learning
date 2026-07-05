@@ -80,3 +80,39 @@ dapr run \
   --log-level debug \
   -- yarn nest start order-service
 ```
+
+## Learning Roadmap
+
+### ✅ Phase 1 - Fundamentals
+
+- [x] Service Invocation
+- [x] Pub/Sub
+- [x] State Store
+- [x] Secret Store
+
+### ✅ Phase 2 - Project Foundation
+
+- [x] Shared common library
+- [x] Shared dapr-core library
+- [x] CloudEvents
+- [x] Separate Mongo collections
+- [x] Event-driven architecture
+
+### 🚧 Phase 3 - Business Workflow
+
+- [x] OrderCreated
+- [x] PaymentCompleted
+- [ ] InventoryReserved
+- [ ] NotificationSent
+
+### ⏳ Phase 4 - Production Features
+
+- [ ] Retry / Resiliency
+- [ ] Dead Letter Queue
+- [ ] Outbox Pattern
+- [ ] Workflow
+- [ ] Actors
+- [ ] Distributed Locks
+- [ ] Multi-tenancy
+- [ ] Observability
+- [ ] Kubernetes
