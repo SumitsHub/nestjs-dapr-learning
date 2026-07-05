@@ -4,7 +4,7 @@ import type { CloudEvent, PaymentCompletedEvent } from 'dapr-learning/common';
 import { PubSubService } from '@app/dapr-core';
 import { InventoryStateService } from './state.service';
 import { InventoryServiceService } from './inventory-service.service';
-import { InventoryMapper } from './inventory-service.mapper';
+import { InventoryMapper } from './mappers/inventory.mapper';
 
 @Controller()
 export class SubscriptionsController {

@@ -1,5 +1,5 @@
+import { InventoryDto } from '../dtos/inventory.dto';
 import { InventoryReservedEvent } from 'dapr-learning/common';
-import { InventoryDto } from './dtos/inventory.dto';
 
 export class InventoryMapper {
   static toInventoryReservedEvent(
@@ -7,8 +7,8 @@ export class InventoryMapper {
   ): InventoryReservedEvent {
     return {
       reservationId: inventory.reservationId,
-      orderId: inventory.orderId,
       paymentId: inventory.paymentId,
+      orderId: inventory.orderId,
       items: inventory.items,
       status: inventory.status,
       reservedAt: inventory.reservedAt,
