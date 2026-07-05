@@ -42,6 +42,12 @@ export class OrderServiceService {
       amount: payload.amount,
       status: OrderStatus.CREATED,
       createdAt: new Date(),
+      items: [
+        {
+          quantity: 2,
+          sku: 'SKU-123',
+        },
+      ],
     };
 
     await this.pubSubService.publish(TOPICS.ORDER_CREATED, event);
