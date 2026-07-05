@@ -1,2 +1,3 @@
 export * from './dapr-core.module';
-export * from './dapr-core.service';
+export * from './pubsub.service';
+export * from './invocation.service';

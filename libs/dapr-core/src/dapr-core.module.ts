@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DaprCoreService } from './dapr-core.service';
+import { PubSubService } from './pubsub.service';
 
 @Module({
-  providers: [DaprCoreService],
-  exports: [DaprCoreService],
+  providers: [PubSubService],
+  exports: [PubSubService],
 })
 export class DaprCoreModule {}

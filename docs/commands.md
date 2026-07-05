@@ -190,3 +190,7 @@ Pub/Sub
 ```
 
 ```
+
+## Generate library
+
+nest g library dapr-core

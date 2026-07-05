@@ -5,15 +5,16 @@ import {
   CreateOrderDto,
   OrderCreatedEvent,
   OrderStatus,
+  TOPICS,
 } from 'dapr-learning/common';
-import { DaprService } from './dapr.service';
 import { StateService } from './state.service';
+import { PubSubService } from '@app/dapr-core';
 
 @Injectable()
 export class OrderServiceService {
   constructor(
     private readonly httpService: HttpService,
-    private readonly daprService: DaprService,
+    private readonly pubSubService: PubSubService,
     private readonly stateService: StateService,
   ) {}
 
@@ -43,7 +44,7 @@ export class OrderServiceService {
       createdAt: new Date(),
     };
 
-    await this.daprService.publishOrderCreated(event);
+    await this.pubSubService.publish(TOPICS.ORDER_CREATED, event);
     return {
       orderCreated: true,
       eventPublished: true,

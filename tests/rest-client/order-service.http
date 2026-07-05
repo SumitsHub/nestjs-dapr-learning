@@ -12,7 +12,7 @@ POST {{orderService}}/orders
 Content-Type: {{contentType}}
 
 {
-    "orderId": "ORD-001",
+    "orderId": "ORD-003",
     "amount": 100
 }
 
@@ -43,7 +43,7 @@ GET {{orderService}}/orders/ORD-101
 ###
 
 ### Temporary Endpoint
-### Used for testing Dapr Service Invocation
+### Used for testing Dapr Service Invocation (Resiliency, Retry, etc.)
 
 POST {{orderService}}/orders/pay-now
 Content-Type: {{contentType}}

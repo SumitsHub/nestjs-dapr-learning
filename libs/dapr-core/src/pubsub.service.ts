@@ -7,7 +7,7 @@ import {
 } from 'dapr-learning/common';
 
 @Injectable()
-export class DaprService {
+export class PubSubService {
   private readonly client: DaprClient;
 
   constructor() {
@@ -17,8 +17,11 @@ export class DaprService {
     });
   }
 
-  async publishOrderCreated(data: OrderCreatedEvent) {
-    await this.client.pubsub.publish('pubsub', TOPICS.ORDER_CREATED, data);
+  async publish(
+    topic: string,
+    data: string | object | undefined,
+  ): Promise<void> {
+    await this.client.pubsub.publish('pubsub', topic, data);
   }
 
   async invokePayment(data: CreateOrderDto) {

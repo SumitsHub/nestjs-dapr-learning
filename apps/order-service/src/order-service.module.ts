@@ -3,13 +3,23 @@ import { HttpModule } from '@nestjs/axios';
 
 import { OrderServiceController } from './order-service.controller';
 import { OrderServiceService } from './order-service.service';
-import { DaprService } from './dapr.service';
 import { StateService } from './state.service';
 import { SecretService } from './secret.service';
+import {
+  DaprCoreModule,
+  PubSubService,
+  InvocationService,
+} from '@app/dapr-core';
 
 @Module({
-  imports: [HttpModule],
+  imports: [HttpModule, DaprCoreModule],
   controllers: [OrderServiceController],
-  providers: [OrderServiceService, DaprService, StateService, SecretService],
+  providers: [
+    OrderServiceService,
+    PubSubService,
+    StateService,
+    SecretService,
+    InvocationService,
+  ],
 })
 export class OrderServiceModule {}
