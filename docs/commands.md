@@ -49,6 +49,17 @@ dapr run \
   -- yarn nest start order-service
 ```
 
+Inventory Service
+
+```bash
+dapr run \
+  --app-id inventory-service \
+  --app-port 3002 \
+  --dapr-http-port 3502 \
+  --resources-path ./dapr/components \
+  -- yarn nest start inventory-service
+```
+
 Communication:
 
 ```text
@@ -194,3 +205,7 @@ Pub/Sub
 ## Generate library
 
 nest g library dapr-core
+
+## Generate service
+
+nest g app inventory-service
