@@ -3,12 +3,14 @@ import { OrderCreatedEvent, TOPICS } from 'dapr-learning/common';
 import type { CloudEvent } from 'dapr-learning/common';
 import { PaymentServiceService } from './payment-service.service';
 import { StateService } from './state.service';
+import { PubSubService } from '@app/dapr-core';
 
 @Controller()
 export class SubscriptionsController {
   constructor(
     private readonly paymentService: PaymentServiceService,
     private readonly stateService: StateService,
+    private readonly pubSubService: PubSubService,
   ) {}
   @Get('/dapr/subscribe')
   subscribe() {
@@ -32,6 +34,14 @@ export class SubscriptionsController {
     console.log(payment);
 
     // publish PaymentCompleted
+    await this.pubSubService.publish(TOPICS.PAYMENT_COMPLETED, {
+      paymentId: payment.paymentId,
+      orderId: payment.orderId,
+      amount: payment.amount,
+      status: payment.status,
+      processedAt: payment.processedAt,
+    });
+    console.log('Published PaymentCompleted event');
 
     return { success: true };
   }
