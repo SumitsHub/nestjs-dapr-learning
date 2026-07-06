@@ -431,3 +431,43 @@ Mitigations (in order of strength):
 3. Add a runtime schema validator (Zod / class-validator) at both
    publish and consume boundaries. Required once you cross a language
    boundary or an org boundary.
+
+---
+
+# Distributed Tracing (Lesson 13)
+
+Dapr propagates a W3C `traceparent` header on every Service Invocation
+and every Pub/Sub message. Every sidecar exports spans to Zipkin (or
+any OpenTelemetry-compatible backend).
+
+Interview Question:
+
+**How does Dapr propagate trace context across Pub/Sub?**
+
+Answer:
+
+Dapr writes `traceparent` into the CloudEvent envelope. The consumer
+sidecar reads it back out and continues the trace on the downstream
+service. The application code never touches it.
+
+Interview Question:
+
+**Why is `samplingRate: 1` dangerous in production?**
+
+Answer:
+
+It traces 100% of requests. At scale, span storage and network cost
+explodes. Typical prod values are 1–10% head-based sampling, plus
+100% tail sampling of error traces so failures are always visible.
+
+---
+
+# DaprClient Connection Config
+
+Every service must talk to *its own* sidecar. Hardcoding a port works
+in local dev only because all sidecars load the same components. In
+production (per-pod sidecars) and in tracing, it silently corrupts
+service attribution.
+
+Fix: read `DAPR_HTTP_PORT` (auto-exported by `dapr run`) from the env.
+Centralize it in a single factory so it cannot drift.

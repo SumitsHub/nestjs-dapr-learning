@@ -16,6 +16,11 @@ yarn dapr:down
 yarn infra:down
 ```
 
+**UIs to keep open while developing:**
+
+- RabbitMQ: <http://localhost:15672> (admin / admin)
+- Zipkin (distributed tracing): <http://localhost:9411>
+
 Individual service scripts (useful when debugging one at a time):
 
 ```bash

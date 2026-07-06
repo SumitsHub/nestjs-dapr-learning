@@ -107,6 +107,7 @@ dapr run \
 
 ### ⏳ Phase 4 - Production Features
 
+- [x] Observability (Distributed Tracing / Zipkin)
 - [ ] Retry / Resiliency
 - [ ] Dead Letter Queue
 - [ ] Outbox Pattern
@@ -114,5 +115,5 @@ dapr run \
 - [ ] Actors
 - [ ] Distributed Locks
 - [ ] Multi-tenancy
-- [ ] Observability
+- [ ] Metrics (Prometheus/Grafana)
 - [ ] Kubernetes
