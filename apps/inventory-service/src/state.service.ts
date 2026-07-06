@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DaprClient } from '@dapr/dapr';
+import { createDaprClient } from '@app/dapr-core';
 import { InventoryDto } from './dtos/inventory.dto';
 
 @Injectable()
@@ -7,10 +8,7 @@ export class InventoryStateService {
   private readonly client: DaprClient;
 
   constructor() {
-    this.client = new DaprClient({
-      daprHost: '127.0.0.1',
-      daprPort: '3502',
-    });
+    this.client = createDaprClient();
   }
 
   async save(key: string, inventory: InventoryDto): Promise<void> {
