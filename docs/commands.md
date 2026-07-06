@@ -1,5 +1,40 @@
 # Dapr Command Reference
 
+## Quick Start (recommended)
+
+Start infra + all four sidecars with two commands:
+
+```bash
+yarn infra:up      # RabbitMQ + Mongo via docker compose
+yarn dapr:up       # all four services via dapr run -f .
+```
+
+Stop them:
+
+```bash
+yarn dapr:down
+yarn infra:down
+```
+
+Individual service scripts (useful when debugging one at a time):
+
+```bash
+yarn dapr:order
+yarn dapr:payment
+yarn dapr:inventory
+yarn dapr:notification
+```
+
+List running Dapr apps:
+
+```bash
+yarn dapr:list
+```
+
+The multi-app config lives in [`dapr.yaml`](../dapr.yaml).
+
+---
+
 ## Initial HTTP Version (No Dapr)
 
 Payment Service

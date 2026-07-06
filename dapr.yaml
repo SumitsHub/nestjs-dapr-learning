@@ -1,0 +1,36 @@
+# Dapr multi-app run file.
+# Usage:
+#   yarn dapr:up     # starts all four sidecars + apps
+#   yarn dapr:down   # stops them
+#
+# Docs: https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/
+
+version: 1
+
+common:
+  resourcesPath: ./dapr/components
+
+apps:
+  - appID: order-service
+    appDirPath: .
+    appPort: 3000
+    daprHTTPPort: 3500
+    command: ["yarn", "nest", "start", "order-service"]
+
+  - appID: payment-service
+    appDirPath: .
+    appPort: 3001
+    daprHTTPPort: 3501
+    command: ["yarn", "nest", "start", "payment-service"]
+
+  - appID: inventory-service
+    appDirPath: .
+    appPort: 3002
+    daprHTTPPort: 3502
+    command: ["yarn", "nest", "start", "inventory-service"]
+
+  - appID: notification-service
+    appDirPath: .
+    appPort: 3003
+    daprHTTPPort: 3503
+    command: ["yarn", "nest", "start", "notification-service"]
