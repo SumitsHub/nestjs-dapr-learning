@@ -110,7 +110,8 @@ dapr run \
 - [x] Observability (Distributed Tracing / Zipkin)
 - [x] Retry / Resiliency (Pub/Sub inbound)
 - [x] Dead Letter Queue
-- [ ] Outbox Pattern
+- [x] Outbox Pattern
+- [ ] Idempotent Consumers
 - [ ] Workflow
 - [ ] Actors
 - [ ] Distributed Locks

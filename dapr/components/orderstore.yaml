@@ -5,15 +5,59 @@ metadata:
   name: orderstore
 
 spec:
-  type: state.mongodb
+  # Lesson 15: switched from state.mongodb to state.redis so we can
+  # enable the Dapr Outbox pattern. Outbox requires a state store that
+  # supports transactions; Redis does out of the box, whereas MongoDB
+  # requires a replica set (see docs/15-transactional-outbox.md).
+  #
+  # The application code did NOT change — same component name
+  # ("orderstore"), same client.state.get/save calls. That is Dapr's
+  # pluggability in action: swap the backing store by editing YAML.
+  #
+  # Note: existing orders that were previously written to MongoDB stay
+  # in the `dapr-learning.orders` collection. They are not migrated —
+  # `state.get('orderstore', ...)` now reads from Redis only.
+  #
+  # -----------------------------------------------------------------
+  # PREVIOUS CONFIG (kept for reference — do NOT re-enable without
+  # first initialising Mongo as a single-node replica set, otherwise
+  # outbox transactions will fail):
+  #
+  # spec:
+  #   type: state.mongodb
+  #   version: v1
+  #   metadata:
+  #     - name: host
+  #       value: 'localhost:27017'
+  #     - name: databaseName
+  #       value: 'dapr-learning'
+  #     - name: collectionName
+  #       value: 'orders'
+  # -----------------------------------------------------------------
+
+  type: state.redis
   version: v1
 
   metadata:
-    - name: host
-      value: 'localhost:27017'
+    - name: redisHost
+      value: 'localhost:6379'
 
-    - name: databaseName
-      value: 'dapr-learning'
+    - name: redisPassword
+      value: ''
 
-    - name: collectionName
-      value: 'orders'
+    # --- Outbox configuration ---------------------------------------
+    # Every state.save() to this store is committed transactionally
+    # WITH a publish to `outboxPublishTopic` on `outboxPublishPubsub`.
+    # No dual-write, no race window.
+    - name: outboxPublishPubsub
+      value: 'pubsub'
+    - name: outboxPublishTopic
+      value: 'order-created'
+    # Internal pubsub Dapr uses to shuttle from state txn to external
+    # publish. Kept on the same broker for simplicity.
+    - name: outboxPubsub
+      value: 'pubsub'
+    # Skip publishing when the underlying state key no longer exists
+    # (e.g. after a delete). Prevents spurious empty events.
+    - name: outboxDiscardWhenMissingState
+      value: 'true'

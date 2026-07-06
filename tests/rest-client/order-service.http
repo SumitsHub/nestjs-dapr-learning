@@ -32,7 +32,7 @@ Content-Type: {{contentType}}
 
 ### Get Order State
 
-GET {{orderService}}/orders/ORD-001
+GET {{orderService}}/orders/ORD-CHAOS-1
 
 ###
 
@@ -105,4 +105,32 @@ Content-Type: {{contentType}}
 {
     "orderId": "FAIL-500",
     "amount": 999
+}
+
+###
+
+### ==========================================
+### Transactional Outbox Chaos Test (Lesson 15)
+### ==========================================
+###
+### The /orders/chaos endpoint calls createOrder() then throws.
+### Response is HTTP 500, but the sidecar has already transactionally
+### committed both the state save AND the OrderCreated publish.
+###
+### Expected:
+###   - HTTP response       : 500 with "Simulated crash AFTER save..."
+###   - Redis (orderstore)  : key `ORD-CHAOS-1` exists
+###   - RabbitMQ            : order-created delivered
+###   - payment-service     : Received OrderCreated → published PaymentCompleted
+###   - inventory + notification: full chain still fires
+###
+### Before Lesson 15 this would have left an orphaned order with no
+### downstream processing.
+
+POST {{orderService}}/orders/chaos
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-CHAOS-2",
+    "amount": 42
 }

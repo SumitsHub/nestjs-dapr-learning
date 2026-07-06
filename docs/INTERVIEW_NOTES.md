@@ -508,3 +508,64 @@ Use a dedupe key in the state store (e.g., a hash of `event.id`). On
 receive: `if (already-processed(id)) return ack`. This makes retries
 safe. Without idempotency, a message that succeeded but whose ack was
 lost will be double-processed on redelivery.
+
+---
+
+# Transactional Outbox (Lesson 15)
+
+The dual-write problem: writing to a database and publishing to a
+broker are two separate operations. A crash between them silently
+loses events. The fix is the outbox pattern: state write and event
+publish share one transaction, so either both happen or neither does.
+
+Dapr implements outbox as component metadata on any transactional
+state store. No poller code, no outbox table to maintain.
+
+Interview Question:
+
+**Why not use a distributed transaction (2PC) between the DB and the broker?**
+
+Answer:
+
+Historically brittle, most modern brokers (Kafka, RabbitMQ) don't
+support XA, and even when they do it kills throughput. The outbox
+pattern gives the same guarantee (no lost events) with a single-DB
+transaction, at the cost of at-least-once delivery.
+
+Interview Question:
+
+**What guarantee does outbox actually give — exactly-once or at-least-once?**
+
+Answer:
+
+At-least-once. The poller/forwarder can crash after publishing but
+before marking the row done, leading to a re-publish. Consumers must
+be idempotent. Exactly-once end-to-end is impossible in general
+(acks can be lost); at-least-once + idempotent consumers is the
+standard target.
+
+Interview Question:
+
+**Why did we pick Redis for `orderstore` but keep Mongo for the others?**
+
+Answer:
+
+Outbox requires the state store to support transactions. Redis does
+natively (MULTI/EXEC); MongoDB requires a replica set for multi-doc
+transactions, and our dev container is a single node. Rather than
+initialise a replica set just to demo outbox, we introduced Redis for
+the one store that needs it — which also shows off Dapr's per-
+component pluggability.
+
+Interview Question:
+
+**A colleague enabled outbox metadata but no events are being published — what's wrong?**
+
+Answer:
+
+Almost certainly they're calling `client.state.save()` (the bulk-save
+endpoint) instead of `client.state.transaction()`. Dapr's outbox is
+hooked into the transactional endpoint only. The state gets persisted
+correctly, so the bug is invisible unless you check the broker.
+Symptom: outbox subscription exists in the sidecar startup log, but
+no messages ever flow through it.

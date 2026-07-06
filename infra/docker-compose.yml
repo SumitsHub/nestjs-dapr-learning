@@ -20,3 +20,13 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+
+  # Used by order-service's state store to enable the Dapr Outbox
+  # pattern (Lesson 15). Redis supports transactions natively, which
+  # is a prerequisite for outbox. MongoDB would work too but requires
+  # replica-set init — see docs/15-transactional-outbox.md.
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
