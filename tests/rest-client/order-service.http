@@ -81,3 +81,28 @@ Content-Type: {{contentType}}
 ###
 ### Verify each service's Mongo collection now has a document
 ### (orders, payments, inventory).
+
+###
+
+### ==========================================
+### Dead Letter Topic (Lesson 14)
+### ==========================================
+###
+### Any orderId starting with "FAIL-" triggers a permanent failure
+### inside payment-service. Dapr will:
+###
+###   1. Deliver OrderCreated to payment-service (attempt 1) → throws
+###   2. Retry via `pubsubInboundRetry` policy (attempts 2..4)
+###   3. After maxRetries=3, forward the CloudEvent to the
+###      `payment-failed` dead letter topic
+###   4. payment-service's DLQ subscription logs it (see terminal)
+###
+### Watch payment-service terminal for the [DLQ] block.
+
+POST {{orderService}}/orders
+Content-Type: {{contentType}}
+
+{
+    "orderId": "FAIL-500",
+    "amount": 999
+}

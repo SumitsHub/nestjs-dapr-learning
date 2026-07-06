@@ -471,3 +471,40 @@ service attribution.
 
 Fix: read `DAPR_HTTP_PORT` (auto-exported by `dapr run`) from the env.
 Centralize it in a single factory so it cannot drift.
+
+---
+
+# Pub/Sub Reliability & Dead Letter Topics (Lesson 14)
+
+Two orthogonal knobs:
+
+1. **Retries** — a `Resiliency` policy on the pubsub component's
+   `inbound` path bounds how many times a failing message is redelivered.
+2. **`deadLetterTopic`** — declared on the subscription itself. After
+   retries are exhausted, the runtime forwards the CloudEvent (headers
+   intact) to this topic.
+
+Both are required. Without the retry cap, the DLQ never triggers.
+
+Interview Question:
+
+**Why not just rely on RabbitMQ's native dead-lettering (x-dead-letter-exchange)?**
+
+Answer:
+
+It works, but bypasses the Dapr abstraction. You lose portability
+(each broker has its own dead-letter syntax) and Dapr features like
+`traceparent` propagation into the DLQ handler. Use
+`deadLetterTopic` unless you specifically need broker features Dapr
+doesn't expose.
+
+Interview Question:
+
+**How would you make a subscriber idempotent?**
+
+Answer:
+
+Use a dedupe key in the state store (e.g., a hash of `event.id`). On
+receive: `if (already-processed(id)) return ack`. This makes retries
+safe. Without idempotency, a message that succeeded but whose ack was
+lost will be double-processed on redelivery.

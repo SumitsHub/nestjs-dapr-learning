@@ -108,8 +108,8 @@ dapr run \
 ### ⏳ Phase 4 - Production Features
 
 - [x] Observability (Distributed Tracing / Zipkin)
-- [ ] Retry / Resiliency
-- [ ] Dead Letter Queue
+- [x] Retry / Resiliency (Pub/Sub inbound)
+- [x] Dead Letter Queue
 - [ ] Outbox Pattern
 - [ ] Workflow
 - [ ] Actors

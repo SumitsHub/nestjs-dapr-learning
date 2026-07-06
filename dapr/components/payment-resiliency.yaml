@@ -6,12 +6,26 @@ metadata:
 spec:
   policies:
     retries:
+      # Existing policy used for Service Invocation retries (Lesson 9).
       paymentRetry:
         policy: constant
         duration: 2s
+        maxRetries: 3
+
+      # NEW (Lesson 14) — bounded retries for pub/sub inbound delivery.
+      # After these attempts fail, the message is routed to `deadLetterTopic`
+      # declared on the subscription.
+      pubsubInboundRetry:
+        policy: exponential
+        maxInterval: 10s
         maxRetries: 3
 
   targets:
     apps:
       payment-service:
         retry: paymentRetry
+
+    components:
+      pubsub:
+        inbound:
+          retry: pubsubInboundRetry

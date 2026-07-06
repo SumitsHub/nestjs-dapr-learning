@@ -163,6 +163,11 @@ yarn infra:up      # starts RabbitMQ + Mongo + Zipkin
 yarn dapr:up       # starts all 4 sidecars with tracing config
 ```
 
+> **If `yarn dapr:up` fails with `Port 3500 is not available`**, a
+> previous run left orphaned sidecars behind. Run `yarn dapr:doctor`
+> to inspect, then `yarn dapr:down` to clean up.
+> Full explanation: [commands.md → Troubleshooting](./commands.md#troubleshooting).
+
 Trigger the chain:
 
 ```bash
