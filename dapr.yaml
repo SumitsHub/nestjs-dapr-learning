@@ -9,6 +9,7 @@ version: 1
 
 common:
   resourcesPath: ./dapr/components
+  configFilePath: ./dapr/config/tracing.yaml
 
 apps:
   - appID: order-service

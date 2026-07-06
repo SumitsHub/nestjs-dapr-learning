@@ -23,10 +23,10 @@
     "dapr:up": "dapr run -f .",
     "dapr:down": "dapr stop -f dapr.yaml",
     "dapr:list": "dapr list",
-    "dapr:order": "dapr run --app-id order-service --app-port 3000 --dapr-http-port 3500 --resources-path ./dapr/components -- yarn nest start order-service",
-    "dapr:payment": "dapr run --app-id payment-service --app-port 3001 --dapr-http-port 3501 --resources-path ./dapr/components -- yarn nest start payment-service",
-    "dapr:inventory": "dapr run --app-id inventory-service --app-port 3002 --dapr-http-port 3502 --resources-path ./dapr/components -- yarn nest start inventory-service",
-    "dapr:notification": "dapr run --app-id notification-service --app-port 3003 --dapr-http-port 3503 --resources-path ./dapr/components -- yarn nest start notification-service"
+    "dapr:order": "dapr run --app-id order-service --app-port 3000 --dapr-http-port 3500 --resources-path ./dapr/components --config ./dapr/config/tracing.yaml -- yarn nest start order-service",
+    "dapr:payment": "dapr run --app-id payment-service --app-port 3001 --dapr-http-port 3501 --resources-path ./dapr/components --config ./dapr/config/tracing.yaml -- yarn nest start payment-service",
+    "dapr:inventory": "dapr run --app-id inventory-service --app-port 3002 --dapr-http-port 3502 --resources-path ./dapr/components --config ./dapr/config/tracing.yaml -- yarn nest start inventory-service",
+    "dapr:notification": "dapr run --app-id notification-service --app-port 3003 --dapr-http-port 3503 --resources-path ./dapr/components --config ./dapr/config/tracing.yaml -- yarn nest start notification-service"
   },
   "dependencies": {
     "@dapr/dapr": "^3.18.0",
