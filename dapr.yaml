@@ -8,7 +8,13 @@
 version: 1
 
 common:
-  resourcesPath: ./dapr/components
+  # `resourcesPaths` (plural) is a list — every folder is scanned for
+  # any Dapr resource kind (Component, Resiliency, HTTPEndpoint,
+  # Subscription, etc.). Keeping resources grouped by kind is cleaner
+  # than dropping everything into one folder.
+  resourcesPaths:
+    - ./dapr/components
+    - ./dapr/resiliency
   configFilePath: ./dapr/config/tracing.yaml
 
 apps:

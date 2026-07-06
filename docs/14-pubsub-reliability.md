@@ -45,7 +45,7 @@ the runtime keeps retrying forever.
 
 ## The Retry Policy
 
-`dapr/components/payment-resiliency.yaml`:
+`dapr/resiliency/payment-resiliency.yaml`:
 
 ```yaml
 spec:

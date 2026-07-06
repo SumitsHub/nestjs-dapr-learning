@@ -61,8 +61,24 @@ These policies are configured in Dapr rather than implemented separately in each
 Create:
 
 ```text id="b2kq7x"
-dapr/components/payment-resiliency.yaml
+dapr/resiliency/payment-resiliency.yaml
 ```
+
+> **Folder note.** `kind: Resiliency` is a *resource*, not a component,
+> so it belongs in its own folder — not under `dapr/components/`.
+> Dapr's `--resources-path` flag is repeatable, and `dapr.yaml`
+> supports `resourcesPaths` (plural), so both directories are loaded:
+>
+> ```yaml
+> common:
+>   resourcesPaths:
+>     - ./dapr/components
+>     - ./dapr/resiliency
+> ```
+>
+> An earlier version of this project kept the file under
+> `dapr/components/` as a workaround for a single-path setup. That is
+> no longer needed.
 
 ```yaml id="1l2xrf"
 apiVersion: dapr.io/v1alpha1
