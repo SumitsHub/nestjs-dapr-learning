@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InventoryReservedEvent } from 'dapr-learning/common';
+import {
+  InventoryReservedEvent,
+  NotificationChannel,
+  NotificationStatus,
+} from 'dapr-learning/common';
 import { NotificationDto } from './dtos/notification.dto';
-import { NotificationStatus } from './enums/notification-status.enum';
 import { randomUUID } from 'crypto';
 import { SmsService } from './services/sms.service';
 import { EmailService } from './services/email.service';
-import { NotificationChannel } from './enums/notification-channel.enum';
 
 @Injectable()
 export class NotificationServiceService {

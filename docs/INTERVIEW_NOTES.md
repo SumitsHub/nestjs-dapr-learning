@@ -390,3 +390,44 @@ Keep business services focused on domain logic.
 - Health Checks
 
 These sections will be expanded as the project evolves.
+
+---
+
+# Choreography vs Orchestration
+
+Both are ways to compose a multi-service business flow.
+
+**Choreography** — every service reacts to events on its own. No central
+coordinator. Current project: `Order → Payment → Inventory → Notification`
+is pure choreography.
+
+**Orchestration** — a workflow instance owns the flow. It decides the
+next step, waits for results, and calls compensations on failure. Dapr
+Workflows implement this.
+
+Interview Question:
+
+**When would you switch from choreography to orchestration?**
+
+Answer:
+
+- When you can no longer trace the flow by reading a single log.
+- When compensations (undo payment, release inventory) become non-trivial.
+- When you need branching or human-in-the-loop steps.
+- When SLA visibility per business transaction becomes a product requirement.
+
+---
+
+# Field Drift in Event Contracts
+
+If `PubSubService.publish(topic, data: object)` is untyped, a service can
+publish an event that is missing required fields and no compiler catches
+it. The consumer then reads `undefined` at runtime.
+
+Mitigations (in order of strength):
+
+1. Assign the payload to a typed variable before publishing.
+2. Make `publish` generic: `publish<T>(topic, data: T)`.
+3. Add a runtime schema validator (Zod / class-validator) at both
+   publish and consume boundaries. Required once you cross a language
+   boundary or an org boundary.

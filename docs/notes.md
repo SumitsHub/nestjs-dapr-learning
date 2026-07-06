@@ -102,8 +102,8 @@ dapr run \
 
 - [x] OrderCreated
 - [x] PaymentCompleted
-- [ ] InventoryReserved
-- [ ] NotificationSent
+- [x] InventoryReserved
+- [x] NotificationSent
 
 ### ⏳ Phase 4 - Production Features
 

@@ -1,5 +1,4 @@
-import { NotificationChannel } from '../enums/notification-channel.enum';
-import { NotificationStatus } from '../enums/notification-status.enum';
+import { NotificationChannel, NotificationStatus } from 'dapr-learning/common';
 
 export class NotificationDto {
   notificationId: string;

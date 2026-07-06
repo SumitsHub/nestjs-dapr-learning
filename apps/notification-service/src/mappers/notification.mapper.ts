@@ -1,5 +1,5 @@
 import { NotificationDto } from '../dtos/notification.dto';
-import { NotificationSentEvent } from '../events/notification-sent.event';
+import { NotificationSentEvent } from 'dapr-learning/common';
 
 export class NotificationMapper {
   static toNotificationSentEvent(

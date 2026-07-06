@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { OrderCreatedEvent, TOPICS } from 'dapr-learning/common';
+import { OrderCreatedEvent, PaymentCompletedEvent, TOPICS } from 'dapr-learning/common';
 import type { CloudEvent } from 'dapr-learning/common';
 import { PaymentServiceService } from './payment-service.service';
 import { StateService } from './state.service';
@@ -34,13 +34,15 @@ export class SubscriptionsController {
     console.log(payment);
 
     // publish PaymentCompleted
-    await this.pubSubService.publish(TOPICS.PAYMENT_COMPLETED, {
+    const paymentCompleted: PaymentCompletedEvent = {
       paymentId: payment.paymentId,
       orderId: payment.orderId,
       amount: payment.amount,
       status: payment.status,
       processedAt: payment.processedAt,
-    });
+      items: payment.items,
+    };
+    await this.pubSubService.publish(TOPICS.PAYMENT_COMPLETED, paymentCompleted);
     console.log('Published PaymentCompleted event');
 
     return { success: true };

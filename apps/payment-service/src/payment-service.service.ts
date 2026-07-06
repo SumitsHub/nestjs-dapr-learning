@@ -13,6 +13,7 @@ export class PaymentServiceService {
       amount: event.amount,
       status: PaymentStatus.COMPLETED,
       processedAt: new Date(),
+      items: event.items,
     };
   }
 }

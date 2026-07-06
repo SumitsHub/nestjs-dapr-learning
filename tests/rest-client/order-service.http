@@ -52,3 +52,32 @@ Content-Type: {{contentType}}
     "orderId": "ORD-999",
     "amount": 500
 }
+
+###
+
+### ==========================================
+### End-to-End Choreography Chain (Lesson 12)
+### Order → Payment → Inventory → Notification
+### ==========================================
+###
+### Prerequisites:
+###   docker compose up -d      (RabbitMQ + Mongo)
+###   Start all four sidecars (see docs/commands.md)
+###
+### Watch the four terminals — you should see, in order:
+###   order-service        : published OrderCreated
+###   payment-service      : Received OrderCreated → published PaymentCompleted
+###   inventory-service    : Received PaymentCompleted → published InventoryReserved
+###   notification-service : Received InventoryReserved → EMAIL SENT, SMS SENT
+
+POST {{orderService}}/orders
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-777",
+    "amount": 250
+}
+
+###
+### Verify each service's Mongo collection now has a document
+### (orders, payments, inventory).

@@ -2,3 +2,5 @@
 export * from './order-status.enum';
 export * from './payment-status.enum';
 export * from './inventory-status.enum';
+export * from './notification-channel.enum';
+export * from './notification-status.enum';

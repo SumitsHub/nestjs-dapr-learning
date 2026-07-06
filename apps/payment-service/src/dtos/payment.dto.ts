@@ -1,4 +1,4 @@
-import { PaymentStatus } from 'dapr-learning/common';
+import { InventoryItemDto, PaymentStatus } from 'dapr-learning/common';
 
 export class PaymentDto {
   paymentId: string;
@@ -6,4 +6,5 @@ export class PaymentDto {
   amount: number;
   status: PaymentStatus;
   processedAt: Date;
+  items: InventoryItemDto[];
 }
