@@ -40,6 +40,83 @@ The multi-app config lives in [`dapr.yaml`](../dapr.yaml).
 
 ---
 
+## Troubleshooting
+
+### `Port 3500 is not available` on `yarn dapr:up`
+
+**Symptom:**
+
+```text
+❌  Error validating run config for app "order-service": invalid configuration for HTTPPort. Port 3500 is not available
+```
+
+**Root cause.** `dapr run -f dapr.yaml` supervises two child
+processes per service: the Dapr sidecar (`daprd`) and the app
+(`nest start <svc>`, which itself forks `node dist/apps/<svc>/main`).
+If the parent CLI dies unexpectedly (terminal crash, `kill -9` on the
+wrong PID, a `dapr stop` that only killed the CLI), those children
+are re-parented and keep running. Ports stay bound.
+
+You can confirm this with `dapr list` — the tell-tale sign is:
+
+```text
+DAPRD PID  CLI PID  APP PID
+216862     0        0        ← CLI is dead, sidecar is orphaned
+```
+
+The graceful `dapr stop -f dapr.yaml` will not help — it looks for a
+coordinator that no longer exists.
+
+**The 3-level cleanup this project's `yarn dapr:down` performs:**
+
+1. `dapr stop -f dapr.yaml` — happy path when the CLI is alive.
+2. `dapr stop --app-id <id>` for each of the 4 apps — kills the
+   orphaned `daprd` processes.
+3. `pkill -f "dist/apps/<svc>/main"` for each service — kills the
+   orphaned `node` process that `nest start` originally forked.
+   (`pkill -f "nest start ..."` does not work: `nest start` is only
+   the parent CLI, and it died at the same time as its own parent.)
+
+**Manual recovery** (if you want to see it step by step):
+
+```bash
+# 1. Show the orphans
+yarn dapr:doctor
+
+# 2. Cleanup
+yarn dapr:down
+
+# 3. Confirm all ports are free
+yarn dapr:doctor
+```
+
+**Last-resort nuclear option** (kills every daprd and every nest child on the box):
+
+```bash
+pkill -f daprd
+pkill -f 'dist/apps/.*-service/main'
+```
+
+### `dapr:doctor` — read-only inspector
+
+Reports:
+
+- What `dapr list` sees
+- Which of ports 3000-3003, 3500-3503 are held and by whom
+- All `daprd` + compiled-nest-service processes with their ages
+
+Safe to run any time. Never kills anything.
+
+### Why the app ports stay held after Ctrl+C
+
+Ctrl+C sends SIGINT to the foreground process group. In some
+terminals (especially over SSH or WSL), the signal is delivered to
+`dapr` but not always to grand-children like the forked node process.
+That's exactly the orphan scenario above. The fix is the same:
+`yarn dapr:down`.
+
+---
+
 ## Initial HTTP Version (No Dapr)
 
 Payment Service
