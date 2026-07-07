@@ -21,12 +21,21 @@ services:
     ports:
       - "9411:9411"
 
-  # Used by order-service's state store to enable the Dapr Outbox
-  # pattern (Lesson 15). Redis supports transactions natively, which
-  # is a prerequisite for outbox. MongoDB would work too but requires
-  # replica-set init — see docs/15-transactional-outbox.md.
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
+  # NOTE — Redis is NOT declared here on purpose.
+  #
+  # `dapr init` already creates a shared container called `dapr_redis`
+  # on port 6379, and every component in this project points at
+  # `localhost:6379`. Per-app-ID key prefixing (`<appId>||<key>`) means
+  # multiple Dapr projects can safely share that instance.
+  #
+  # If you want a project-owned Redis instead (e.g. you plan to run
+  # `dapr uninstall`, or you need isolated data), add the block below
+  # and update `redisHost` in these components to `localhost:6380`:
+  #   - dapr/components/orderstore.yaml
+  #   - dapr/components/dedupstore.yaml
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: dapr-learning-redis
+  #   ports:
+  #     - "6380:6379"

@@ -569,3 +569,50 @@ hooked into the transactional endpoint only. The state gets persisted
 correctly, so the bug is invisible unless you check the broker.
 Symptom: outbox subscription exists in the sidecar startup log, but
 no messages ever flow through it.
+
+---
+
+# Idempotent Consumers (Lesson 16)
+
+Dapr Pub/Sub gives **at-least-once delivery**. Retries, outbox
+forwarder crashes, and broker Nacks all mean the same event will
+arrive more than once. Every subscriber must dedupe by the CloudEvent
+`id`, which is stable across redeliveries.
+
+Implementation pattern: a shared `IdempotencyService` backed by a
+dedicated `dedupstore` (Redis with TTL). Each handler runs
+`wasProcessed(event.id) → doWork() → markProcessed(event.id)`.
+
+Interview Question:
+
+**At-least-once *delivery* vs at-least-once *processing* — what's the difference?**
+
+Answer:
+
+Delivery is the broker's guarantee: the message will arrive at least
+once. Processing is the consumer's guarantee: side effects run at
+least once. A basic dedup guard converts one to the other, but leaves
+a small race window (crash after business write, before mark).
+
+Interview Question:
+
+**How do you get true exactly-once *processing*?**
+
+Answer:
+
+Put the business write and the dedup mark in the same transaction
+against a transactional state store. Then a crash between the two
+is impossible — either both commit or neither does. The trade-off is
+the consumer's state store must support transactions (Redis, or
+Mongo replica set, or SQL).
+
+Interview Question:
+
+**Why the CloudEvent `id` and not the business id (like `orderId`)?**
+
+Answer:
+
+`orderId` is a domain identifier. Two logically different events
+about the same order (Created, Cancelled) would collide. CloudEvent
+`id` is the transport identifier — unique per publish, stable per
+delivery. That's exactly the dedup semantic we want.

@@ -1,0 +1,28 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+
+metadata:
+  name: dedupstore
+
+spec:
+  # Small, hot key-value store dedicated to consumer idempotency.
+  # Used by IdempotencyService in libs/dapr-core to detect and skip
+  # already-processed CloudEvents (see docs/16-idempotent-consumers.md).
+  #
+  # Not the same as `orderstore` — this store never publishes an outbox
+  # event; it just remembers which event IDs we've already handled.
+  type: state.redis
+  version: v1
+
+  metadata:
+    - name: redisHost
+      value: 'localhost:6379'
+    - name: redisPassword
+      value: ''
+
+    # Default TTL for every key written to this store, 7 days.
+    # Individual saves can override via metadata.ttlInSeconds.
+    # Keeps the store bounded — after retention window, redelivery of a
+    # very old event would be re-processed (edge case, acceptable).
+    - name: ttlInSeconds
+      value: '604800'

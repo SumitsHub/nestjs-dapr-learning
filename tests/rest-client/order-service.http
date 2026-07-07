@@ -24,7 +24,7 @@ POST {{orderService}}/orders
 Content-Type: {{contentType}}
 
 {
-    "orderId": "ORD-101",
+    "orderId": "ORD-102",
     "amount": 250
 }
 
@@ -133,4 +133,61 @@ Content-Type: {{contentType}}
 {
     "orderId": "ORD-CHAOS-2",
     "amount": 42
+}
+
+###
+
+### ==========================================
+### Idempotency (Lesson 16)
+### ==========================================
+###
+### Publish the same CloudEvent id twice directly through the
+### order-service sidecar's pub/sub endpoint. Payment-service will
+### process the first, then log "[idempotency] skipping duplicate"
+### on the second — no double payment, no double inventory reservation,
+### no double notification.
+
+@daprPubsub = pubsub
+@daprTopic = order-created
+@dupEventId = evt-fixed-idempotency-1
+
+POST {{orderDapr}}/v1.0/publish/{{daprPubsub}}/{{daprTopic}}
+Content-Type: application/cloudevents+json
+
+{
+    "specversion": "1.0",
+    "id": "{{dupEventId}}",
+    "source": "manual-test",
+    "type": "com.dapr.event.sent",
+    "datacontenttype": "application/json",
+    "data": {
+        "orderId": "ORD-DUP-1",
+        "amount": 111,
+        "status": "CREATED",
+        "createdAt": "2026-07-06T12:00:00Z",
+        "items": [{"sku": "SKU-DUP", "quantity": 1}]
+    }
+}
+
+###
+### Send the exact same event again — same "id".
+### payment-service should log:
+###   [idempotency] skipping duplicate order-created eventId=evt-fixed-idempotency-1
+
+POST {{orderDapr}}/v1.0/publish/{{daprPubsub}}/{{daprTopic}}
+Content-Type: application/cloudevents+json
+
+{
+    "specversion": "1.0",
+    "id": "{{dupEventId}}",
+    "source": "manual-test",
+    "type": "com.dapr.event.sent",
+    "datacontenttype": "application/json",
+    "data": {
+        "orderId": "ORD-DUP-2",
+        "amount": 111,
+        "status": "CREATED",
+        "createdAt": "2026-07-06T12:00:00Z",
+        "items": [{"sku": "SKU-DUP", "quantity": 1}]
+    }
 }

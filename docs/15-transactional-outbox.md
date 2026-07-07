@@ -242,7 +242,36 @@ Expected:
 - `payment-service` logs: `Received OrderCreated event`
 - `inventory-service` logs: `Received PaymentCompleted`
 - `notification-service` logs: `EMAIL SENT`, `SMS SENT`
-- Redis: `redis-cli GET orderstore\|\|ORD-CHAOS-1` returns the order
+- Redis (see "Which Redis?" below):
+  `docker exec dapr_redis redis-cli GET 'order-service||ORD-CHAOS-1'`
+  returns the stored order.
+
+### Which Redis?
+
+Every Dapr install ships with a shared local container called
+`dapr_redis` (created by `dapr init`) bound to `localhost:6379`. This
+project deliberately does NOT declare its own Redis in
+`docker-compose` — both `orderstore` and `dedupstore` point at
+`localhost:6379` which resolves to `dapr_redis`.
+
+Dapr namespaces every key as `<appId>||<userKey>`, so different
+projects sharing `dapr_redis` cannot collide. To inspect our keys:
+
+```bash
+docker exec dapr_redis redis-cli KEYS '*'                  # all keys
+docker exec dapr_redis redis-cli KEYS 'order-service||*'   # our order-service only
+docker exec dapr_redis redis-cli GET 'order-service||ORD-CHAOS-1'
+```
+
+> Common mistake: `redis-cli KEYS 'orderstore*'` returns nothing.
+> The store *name* does not appear in the Redis key — only the app
+> ID does. `orderstore` is the Dapr component name, not the key
+> prefix.
+
+If you want project-isolated Redis (e.g. planning to run
+`dapr uninstall`), uncomment the `redis` service in
+`infra/docker-compose.yml` and switch `redisHost` in the two
+components to `localhost:6380`.
 
 ---
 

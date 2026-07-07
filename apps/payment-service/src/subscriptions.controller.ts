@@ -3,7 +3,7 @@ import { OrderCreatedEvent, PaymentCompletedEvent, TOPICS } from 'dapr-learning/
 import type { CloudEvent } from 'dapr-learning/common';
 import { PaymentServiceService } from './payment-service.service';
 import { StateService } from './state.service';
-import { PubSubService } from '@app/dapr-core';
+import { IdempotencyService, PubSubService } from '@app/dapr-core';
 
 @Controller()
 export class SubscriptionsController {
@@ -11,6 +11,7 @@ export class SubscriptionsController {
     private readonly paymentService: PaymentServiceService,
     private readonly stateService: StateService,
     private readonly pubSubService: PubSubService,
+    private readonly idempotency: IdempotencyService,
   ) {}
   @Get('/dapr/subscribe')
   subscribe() {
@@ -31,6 +32,11 @@ export class SubscriptionsController {
 
   @Post('/orders/order-created')
   async handleOrderCreated(@Body() event: CloudEvent<OrderCreatedEvent>) {
+    if (await this.idempotency.wasProcessed(event.id)) {
+      console.log(`[idempotency] skipping duplicate order-created eventId=${event.id}`);
+      return { success: true };
+    }
+
     console.log('Received OrderCreated event');
     console.log(event);
 
@@ -62,11 +68,16 @@ export class SubscriptionsController {
     await this.pubSubService.publish(TOPICS.PAYMENT_COMPLETED, paymentCompleted);
     console.log('Published PaymentCompleted event');
 
+    await this.idempotency.markProcessed(event.id);
     return { success: true };
   }
 
   @Post('/payments/dead-letter')
   async handleDeadLetter(@Body() event: CloudEvent<OrderCreatedEvent>) {
+    if (await this.idempotency.wasProcessed(`dlq:${event.id}`)) {
+      return { success: true };
+    }
+
     console.error('=================================================');
     console.error('[DLQ] Payment permanently failed — moved to DLQ');
     console.error('[DLQ] orderId :', event.data?.orderId);
@@ -76,6 +87,7 @@ export class SubscriptionsController {
     // In production you would persist this for a human/operator to
     // inspect and replay. For now, acknowledging is enough — returning
     // 200 tells Dapr the DLQ handler is done.
+    await this.idempotency.markProcessed(`dlq:${event.id}`);
     return { success: true };
   }
 }

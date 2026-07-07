@@ -111,7 +111,7 @@ dapr run \
 - [x] Retry / Resiliency (Pub/Sub inbound)
 - [x] Dead Letter Queue
 - [x] Outbox Pattern
-- [ ] Idempotent Consumers
+- [x] Idempotent Consumers
 - [ ] Workflow
 - [ ] Actors
 - [ ] Distributed Locks

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TOPICS } from 'dapr-learning/common';
 import type { CloudEvent, PaymentCompletedEvent } from 'dapr-learning/common';
-import { PubSubService } from '@app/dapr-core';
+import { IdempotencyService, PubSubService } from '@app/dapr-core';
 import { InventoryStateService } from './state.service';
 import { InventoryServiceService } from './inventory-service.service';
 import { InventoryMapper } from './mappers/inventory.mapper';
@@ -12,6 +12,7 @@ export class SubscriptionsController {
     private readonly inventoryService: InventoryServiceService,
     private readonly inventoryStateService: InventoryStateService,
     private readonly pubSubService: PubSubService,
+    private readonly idempotency: IdempotencyService,
   ) {}
   @Get('/dapr/subscribe')
   subscribe() {
@@ -28,6 +29,11 @@ export class SubscriptionsController {
     @Body()
     event: CloudEvent<PaymentCompletedEvent>,
   ) {
+    if (await this.idempotency.wasProcessed(event.id)) {
+      console.log(`[idempotency] skipping duplicate payment-completed eventId=${event.id}`);
+      return { success: true };
+    }
+
     console.log('Received PaymentCompleted');
     console.log(event.data);
 
@@ -46,6 +52,7 @@ export class SubscriptionsController {
     );
     console.log('Published InventoryReserved event');
 
+    await this.idempotency.markProcessed(event.id);
     return { success: true };
   }
 }

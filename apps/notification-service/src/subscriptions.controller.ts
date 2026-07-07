@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TOPICS } from 'dapr-learning/common';
 import type { CloudEvent, InventoryReservedEvent } from 'dapr-learning/common';
-import { PubSubService } from '@app/dapr-core';
+import { IdempotencyService, PubSubService } from '@app/dapr-core';
 import { NotificationMapper } from './mappers/notification.mapper';
 import { NotificationServiceService } from './notification-service.service';
 
@@ -10,6 +10,7 @@ export class SubscriptionsController {
   constructor(
     private readonly pubSubService: PubSubService,
     private readonly notificationService: NotificationServiceService,
+    private readonly idempotency: IdempotencyService,
   ) {}
   @Get('/dapr/subscribe')
   subscribe() {
@@ -26,6 +27,11 @@ export class SubscriptionsController {
     @Body()
     event: CloudEvent<InventoryReservedEvent>,
   ) {
+    if (await this.idempotency.wasProcessed(event.id)) {
+      console.log(`[idempotency] skipping duplicate inventory-reserved eventId=${event.id}`);
+      return { success: true };
+    }
+
     console.log('Received InventoryReserved');
     console.log(event.data);
 
@@ -40,6 +46,7 @@ export class SubscriptionsController {
       NotificationMapper.toNotificationSentEvent(notification),
     );
 
+    await this.idempotency.markProcessed(event.id);
     return { success: true };
   }
 }
