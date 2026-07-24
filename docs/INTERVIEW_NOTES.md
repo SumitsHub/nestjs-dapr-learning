@@ -616,3 +616,62 @@ Answer:
 about the same order (Created, Cancelled) would collide. CloudEvent
 `id` is the transport identifier — unique per publish, stable per
 delivery. That's exactly the dedup semantic we want.
+
+---
+
+# Dapr Workflows (Lesson 17)
+
+Dapr Workflows are **durable functions** built on top of Dapr Actors.
+You write a generator function; every `yield` is a durable suspension
+point whose result is checkpointed to a state store. If the process
+crashes, another replica resumes at the last recorded step.
+
+Interview Question:
+
+**Choreography vs Orchestration — when do you switch?**
+
+Answer:
+
+Switch to orchestration when you can no longer answer *"what step is
+order X on right now?"* by grepping logs, or when compensations,
+timers, or human approvals enter the flow. Choreography is better for
+fire-and-forget event fan-out; orchestration wins for long-running,
+query-able, compensating business sagas.
+
+Interview Question:
+
+**Why must workflow bodies be deterministic?**
+
+Answer:
+
+Dapr uses event-sourcing replay. Every time the workflow wakes to
+handle an activity result, it re-runs the function from the top,
+using recorded history as a cache for previously-yielded activities.
+Any non-determinism (Math.random, Date.now, direct HTTP) would
+produce different values on replay and corrupt the history. Put all
+non-deterministic work in activities — they run exactly once, and
+their result is stored.
+
+Interview Question:
+
+**What does `actorStateStore: true` on a component do?**
+
+Answer:
+
+Marks a Dapr state store as eligible to back the actor runtime.
+Workflows are built on actors, so at least one component must have
+this flag for the WorkflowRuntime to start. Only one component per
+app can be the actor state store.
+
+Interview Question:
+
+**How does a workflow survive an order-service crash mid-saga?**
+
+Answer:
+
+The workflow instance is a Dapr Actor. Its state and history live in
+the actor state store (Redis in this project). When the process
+restarts, Dapr detects the unfinished workflow, activates the actor
+on any healthy replica, and replays the workflow function —
+fast-forwarding through recorded activity results — until it reaches
+the pending yield and resumes there.

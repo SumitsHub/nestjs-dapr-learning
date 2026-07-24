@@ -6,9 +6,10 @@ import { OrderServiceService } from './order-service.service';
 import { StateService } from './state.service';
 import { SecretService } from './secret.service';
 import { DaprCoreModule, InvocationService } from '@app/dapr-core';
+import { WorkflowModule } from './workflow/workflow.module';
 
 @Module({
-  imports: [HttpModule, DaprCoreModule],
+  imports: [HttpModule, DaprCoreModule, WorkflowModule],
   controllers: [OrderServiceController],
   providers: [
     OrderServiceService,

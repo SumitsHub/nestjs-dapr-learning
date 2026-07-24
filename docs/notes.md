@@ -112,8 +112,8 @@ dapr run \
 - [x] Dead Letter Queue
 - [x] Outbox Pattern
 - [x] Idempotent Consumers
-- [ ] Workflow
-- [ ] Actors
+- [x] Workflow
+- [ ] Actors (direct usage)
 - [ ] Distributed Locks
 - [ ] Multi-tenancy
 - [ ] Metrics (Prometheus/Grafana)

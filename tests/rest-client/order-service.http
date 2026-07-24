@@ -191,3 +191,44 @@ Content-Type: application/cloudevents+json
         "items": [{"sku": "SKU-DUP", "quantity": 1}]
     }
 }
+
+###
+
+### ==========================================
+### Dapr Workflow (Lesson 17)
+### ==========================================
+###
+### Kicks off the orchestrated version of the order saga.
+### Response gives you an `instanceId` — plug it into the GET below
+### to observe status. Behind the scenes, order-service's
+### WorkflowRuntime calls three activities in sequence via
+### Dapr Service Invocation:
+###
+###   OrderSagaWorkflow
+###     ├── processPaymentActivity      → payment-service /payments
+###     ├── reserveInventoryActivity    → inventory-service /inventory/reserve
+###     └── sendNotificationActivity    → notification-service /notifications/send
+###
+### Compare to the choreography version (POST /orders) — same 4-service
+### chain, but every step is now durable and centrally observable.
+
+POST {{orderService}}/orders/workflow
+Content-Type: {{contentType}}
+
+{
+    "orderId": "ORD-WF-2",
+    "amount": 999
+}
+
+###
+
+### Poll status. Copy the instanceId from the response above.
+
+@wfInstance = 3476b783-3687-42ca-9478-b8e5032120c8
+GET {{orderService}}/orders/workflow/{{wfInstance}}
+
+###
+
+### Cancel a running workflow (useful if it's stuck).
+
+DELETE {{orderService}}/orders/workflow/{{wfInstance}}

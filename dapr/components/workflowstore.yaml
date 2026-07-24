@@ -1,0 +1,27 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+
+metadata:
+  name: workflowstore
+
+spec:
+  # Dapr Workflows are built on Actors. Any store used for workflow
+  # state must:
+  #   1. Support transactions (Redis MULTI/EXEC — we already use Redis)
+  #   2. Have `actorStateStore: true` in its metadata
+  #
+  # See docs/17-workflows.md for the full explanation.
+  type: state.redis
+  version: v1
+
+  metadata:
+    - name: redisHost
+      value: 'localhost:6379'
+    - name: redisPassword
+      value: ''
+
+    # This flag is what tells Dapr "you may use me as the actor
+    # backing store". Without it, workflow scheduling fails at
+    # startup with "no state store configured for actors".
+    - name: actorStateStore
+      value: 'true'

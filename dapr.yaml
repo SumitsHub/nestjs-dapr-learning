@@ -22,6 +22,10 @@ apps:
     appDirPath: .
     appPort: 3000
     daprHTTPPort: 3500
+    # Lesson 17 — the Node.js Workflow SDK uses gRPC, and its client
+    # defaults to :50001. We pin the sidecar's gRPC port so the
+    # DaprWorkflowClient inside order-service can reach it.
+    daprGRPCPort: 50001
     command: ["yarn", "nest", "start", "order-service"]
 
   - appID: payment-service

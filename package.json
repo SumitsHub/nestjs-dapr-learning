@@ -24,7 +24,7 @@
     "dapr:down": "bash scripts/dapr-down.sh",
     "dapr:doctor": "bash scripts/dapr-doctor.sh",
     "dapr:list": "dapr list",
-    "dapr:order": "dapr run --app-id order-service --app-port 3000 --dapr-http-port 3500 --resources-path ./dapr/components --resources-path ./dapr/resiliency --config ./dapr/config/tracing.yaml -- yarn nest start order-service",
+    "dapr:order": "dapr run --app-id order-service --app-port 3000 --dapr-http-port 3500 --dapr-grpc-port 50001 --resources-path ./dapr/components --resources-path ./dapr/resiliency --config ./dapr/config/tracing.yaml -- yarn nest start order-service",
     "dapr:payment": "dapr run --app-id payment-service --app-port 3001 --dapr-http-port 3501 --resources-path ./dapr/components --resources-path ./dapr/resiliency --config ./dapr/config/tracing.yaml -- yarn nest start payment-service",
     "dapr:inventory": "dapr run --app-id inventory-service --app-port 3002 --dapr-http-port 3502 --resources-path ./dapr/components --resources-path ./dapr/resiliency --config ./dapr/config/tracing.yaml -- yarn nest start inventory-service",
     "dapr:notification": "dapr run --app-id notification-service --app-port 3003 --dapr-http-port 3503 --resources-path ./dapr/components --resources-path ./dapr/resiliency --config ./dapr/config/tracing.yaml -- yarn nest start notification-service"
