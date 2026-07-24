@@ -21,6 +21,7 @@
     "infra:up": "docker compose -f infra/docker-compose.yml up -d",
     "infra:down": "docker compose -f infra/docker-compose.yml down",
     "dapr:up": "dapr run -f .",
+    "dapr:up:watch": "dapr run -f dapr.dev.yaml",
     "dapr:down": "bash scripts/dapr-down.sh",
     "dapr:doctor": "bash scripts/dapr-doctor.sh",
     "dapr:list": "dapr list",

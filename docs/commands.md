@@ -40,6 +40,37 @@ The multi-app config lives in [`dapr.yaml`](../dapr.yaml).
 
 ---
 
+## Live-Reload During Development
+
+Two ways to run the stack, choose per situation:
+
+| Command             | Uses               | App code changes                                    |
+| ------------------- | ------------------ | --------------------------------------------------- |
+| `yarn dapr:up`       | `dapr.yaml`         | Requires `dapr:down && dapr:up` to pick up.          |
+| `yarn dapr:up:watch` | `dapr.dev.yaml`     | Rebuild + restart automatically (~500ms per change). |
+
+Both use the same components, config, and ports. Watch mode simply
+wraps each `nest start` with `--watch`. Dapr's sidecar keeps running
+across app restarts — it retries the app port automatically.
+
+**What auto-reloads without ANY restart, in either mode:**
+
+- Component YAMLs (`dapr/components/*.yaml`) — new state store,
+  changed connection string, added outbox metadata, etc.
+- Resiliency policies (`dapr/resiliency/*.yaml`).
+- Configuration resources (`dapr/config/tracing.yaml`).
+
+You'll see a `Loading …` line in the sidecar log the moment you save
+one of these. This is Dapr's built-in hot-reload — no code required.
+
+**What DOES require a restart:**
+
+- Anything in `dapr.yaml` / `dapr.dev.yaml` itself (ports, app IDs,
+  gRPC pin, resource-paths list). Read once at `dapr run` boot.
+- The list of environment variables passed to each app.
+
+---
+
 ## Troubleshooting
 
 ### `Port 3500 is not available` on `yarn dapr:up`

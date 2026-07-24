@@ -1,0 +1,50 @@
+# Dapr multi-app run file for LOCAL DEVELOPMENT (watch mode).
+#
+# Identical to dapr.yaml except every `command` uses `nest start --watch`,
+# so app code changes rebuild + restart automatically. Dapr's sidecar
+# stays running and reconnects to the app port after each rebuild.
+#
+# Usage:
+#   yarn dapr:up:watch   # watch mode
+#   yarn dapr:up         # normal mode (compiled once, no restart on save)
+#
+# Trade-offs:
+#   + App code changes reload in ~500ms.
+#   - Occasional dropped requests during the reconnect window.
+#   - Higher CPU baseline (webpack watchers running).
+#
+# Use `dapr.yaml` for demos / stable runs; `dapr.dev.yaml` for editing loops.
+
+version: 1
+
+common:
+  resourcesPaths:
+    - ./dapr/components
+    - ./dapr/resiliency
+  configFilePath: ./dapr/config/tracing.yaml
+
+apps:
+  - appID: order-service
+    appDirPath: .
+    appPort: 3000
+    daprHTTPPort: 3500
+    daprGRPCPort: 50001
+    command: ["yarn", "nest", "start", "--watch", "order-service"]
+
+  - appID: payment-service
+    appDirPath: .
+    appPort: 3001
+    daprHTTPPort: 3501
+    command: ["yarn", "nest", "start", "--watch", "payment-service"]
+
+  - appID: inventory-service
+    appDirPath: .
+    appPort: 3002
+    daprHTTPPort: 3502
+    command: ["yarn", "nest", "start", "--watch", "inventory-service"]
+
+  - appID: notification-service
+    appDirPath: .
+    appPort: 3003
+    daprHTTPPort: 3503
+    command: ["yarn", "nest", "start", "--watch", "notification-service"]

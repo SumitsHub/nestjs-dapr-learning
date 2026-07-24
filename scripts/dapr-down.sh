@@ -21,6 +21,7 @@ APPS=(order-service payment-service inventory-service notification-service)
 
 echo "[1/3] Graceful multi-app stop..."
 dapr stop -f dapr.yaml 2>/dev/null || true
+dapr stop -f dapr.dev.yaml 2>/dev/null || true
 
 echo "[2/3] Per-app stop (kills orphaned daprd)..."
 for id in "${APPS[@]}"; do
