@@ -1,0 +1,24 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+
+metadata:
+  name: lockstore
+
+spec:
+  # Distributed Lock building block (Alpha).
+  # Backed by Redis SETNX under the hood — Redis is single-threaded,
+  # so SETNX gives us the "acquire only if not held" primitive we need.
+  #
+  # Usage: `client.lock.lock(storeName, resourceId, lockOwner, expiryInSeconds)`
+  # returns { success: true } if acquired, { success: false } otherwise.
+  #
+  # See docs/18-distributed-locks-and-actors.md for when to use this
+  # vs. Actors.
+  type: lock.redis
+  version: v1
+
+  metadata:
+    - name: redisHost
+      value: 'localhost:6379'
+    - name: redisPassword
+      value: ''

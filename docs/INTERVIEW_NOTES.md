@@ -675,3 +675,53 @@ restarts, Dapr detects the unfinished workflow, activates the actor
 on any healthy replica, and replays the workflow function —
 fast-forwarding through recorded activity results — until it reaches
 the pending yield and resumes there.
+
+---
+
+# Distributed Lock vs Actors (Lesson 18)
+
+Two Dapr building blocks that solve the same class of problem
+(serialize concurrent access to a shared resource) via very different
+mechanisms:
+
+- **Lock**: acquire-release primitive on a named resource, backed by
+  Redis `SETNX` + TTL. Non-blocking; caller decides retry policy.
+- **Actor**: assign single-threaded ownership of an entity to a
+  cluster-wide singleton. State and behaviour colocated.
+
+Interview Question:
+
+**Why is `expiryInSeconds` mandatory on a distributed lock?**
+
+Answer:
+
+Because a holder can crash without releasing the lock. Without a TTL
+the resource stays blocked forever — the lease is the *only*
+automatic path to recovery. Every distributed lock system has this.
+
+Interview Question:
+
+**When would you pick Actors over Distributed Lock?**
+
+Answer:
+
+When the protected thing is an addressable stateful entity accessed
+frequently — e.g. a per-SKU inventory counter, a per-user session, a
+per-device shadow. Actors give you serialization + colocated state +
+automatic placement across the cluster. Locks are better for
+occasional cross-service coordination on things that aren't naturally
+an entity (like "only one worker runs the 5-minute rollup").
+
+Interview Question:
+
+**What's the scariest failure mode of distributed locks?**
+
+Answer:
+
+Stale-lock: your critical section takes longer than the TTL, the
+lock silently expires, another holder acquires it, and now two
+holders think they own the resource. Fencing tokens (monotonic
+sequence numbers checked by the downstream write) are the textbook
+fix; Dapr locks don't expose one, so you rely on TTL comfortably
+exceeding P99 and on downstream writes being idempotent per
+intended change.

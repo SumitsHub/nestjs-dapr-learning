@@ -224,7 +224,7 @@ Content-Type: {{contentType}}
 
 ### Poll status. Copy the instanceId from the response above.
 
-@wfInstance = 3476b783-3687-42ca-9478-b8e5032120c8
+@wfInstance = 11c825a0-fd56-433b-bf59-05d5cb6b9613
 GET {{orderService}}/orders/workflow/{{wfInstance}}
 
 ###
@@ -232,3 +232,79 @@ GET {{orderService}}/orders/workflow/{{wfInstance}}
 ### Cancel a running workflow (useful if it's stuck).
 
 DELETE {{orderService}}/orders/workflow/{{wfInstance}}
+
+
+###
+
+### ==========================================
+### Distributed Lock + Stock (Lesson 18)
+### ==========================================
+
+@invSvc = http://localhost:3002
+
+### 1) Seed stock: 3 units of SKU-DEMO
+
+POST {{invSvc}}/inventory/stock/SKU-DEMO
+Content-Type: application/json
+
+{
+    "quantity": 3
+}
+
+### 2) Read stock
+
+GET {{invSvc}}/inventory/stock/SKU-DEMO
+
+### 3) Reserve 2 units — succeeds, stock → 1
+
+POST {{invSvc}}/inventory/reserve
+Content-Type: application/json
+
+{
+    "paymentId": "pay-lock-1",
+    "orderId":  "ord-lock-1",
+    "amount":   100,
+    "status":   "COMPLETED",
+    "processedAt": "2026-07-23T00:00:00Z",
+    "items": [ { "sku": "SKU-DEMO", "quantity": 2 } ]
+}
+
+### 4) Reserve 2 more — should FAIL with 409 (only 1 left)
+
+POST {{invSvc}}/inventory/reserve
+Content-Type: application/json
+
+{
+    "paymentId": "pay-lock-2",
+    "orderId":  "ord-lock-2",
+    "amount":   100,
+    "status":   "COMPLETED",
+    "processedAt": "2026-07-23T00:00:00Z",
+    "items": [ { "sku": "SKU-DEMO", "quantity": 2 } ]
+}
+
+### 5) Concurrency proof — jq-only pipeline, no temp files.
+### After re-seeding stock to 3, expect exactly 3 × HTTP 200 and 2 × 409.
+### Without the lock, all five would succeed and stock would go negative.
+###
+###   seq 5 | while read i; do
+###     (
+###       resp=$(curl -sS -o /dev/stdout -w '\n%{http_code}' -X POST http://localhost:3002/inventory/reserve \
+###         -H 'Content-Type: application/json' \
+###         -d "{\"paymentId\":\"c-$i\",\"orderId\":\"c-$i\",\"amount\":1,
+###              \"status\":\"COMPLETED\",\"processedAt\":\"2026-07-23T00:00:00Z\",
+###              \"items\":[{\"sku\":\"SKU-DEMO\",\"quantity\":1}]}")
+###       code=${resp##*$'\n'}
+###       body=${resp%$'\n'*}
+###       jq -cn --argjson req "$i" --argjson code "$code" --arg body "$body" \
+###         '{req:$req, code:$code, body: ($body | try fromjson catch $body)}'
+###     ) &
+###   done; wait | jq -s '
+###     sort_by(.req) as $all
+###     | { results: $all,
+###         summary: {
+###           "200":   [$all[] | select(.code==200)] | length,
+###           "409":   [$all[] | select(.code==409)] | length,
+###           "other": [$all[] | select(.code!=200 and .code!=409)] | length
+###         }
+###       }'

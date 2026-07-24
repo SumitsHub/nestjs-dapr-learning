@@ -113,8 +113,8 @@ dapr run \
 - [x] Outbox Pattern
 - [x] Idempotent Consumers
 - [x] Workflow
+- [x] Distributed Locks
 - [ ] Actors (direct usage)
-- [ ] Distributed Locks
 - [ ] Multi-tenancy
 - [ ] Metrics (Prometheus/Grafana)
 - [ ] Kubernetes
